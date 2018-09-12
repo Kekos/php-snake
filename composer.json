@@ -19,5 +19,10 @@
         "psr-4": {
             "Kekos\\PhpSnake\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Kekos\\PhpSnake\\Tests\\": "tests/"
+        }
     }
 }
