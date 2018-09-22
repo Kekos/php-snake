@@ -10,7 +10,7 @@ namespace Kekos\PhpSnake;
 use PDO;
 use Kekos\PhpSnake\Exception\SnakeException;
 
-class Connection
+final class Connection
 {
     /** @var PDO */
     private $pdo;
