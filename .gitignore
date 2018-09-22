@@ -9,3 +9,4 @@ Thumbs.db
 *.log
 composer.lock
 vendor/
+phpunit.xml
