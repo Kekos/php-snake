@@ -11,9 +11,9 @@ class ConnectionTest extends TestCase
     public function testCreatesPdo(): void
     {
         $connection = new Connection(
-            $GLOBALS['DB_DSN'],
-            $GLOBALS['DB_USERNAME'],
-            $GLOBALS['DB_PASSWORD']
+            $_ENV['DB_DSN'],
+            $_ENV['DB_USERNAME'],
+            $_ENV['DB_PASSWORD']
         );
 
         $this->assertAttributeInstanceOf(PDO::class, 'pdo', $connection);
