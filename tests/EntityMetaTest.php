@@ -57,7 +57,7 @@ class EntityMetaTest extends TestCase
         $meta->getPrimaryKeyColumns();
     }
 
-    public function testGetColumns(): void
+    public function testGetColumnsWithValues(): void
     {
         $entity = new FooEntity();
 
