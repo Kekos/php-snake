@@ -63,6 +63,22 @@ final class EntityMeta
         return ['id'];
     }
 
+    public function getDefaultColumns(): array
+    {
+        $properties = [];
+
+        $reflection = new ReflectionClass($this->class_name);
+        foreach ($reflection->getProperties() as $property) {
+            if (!$property->isDefault() || $property->isStatic()) {
+                continue;
+            }
+
+            $properties[] = $property->getName();
+        }
+
+        return $properties;
+    }
+
     public function getColumnsWithValues(object $entity_instance): array
     {
         $properties = [];

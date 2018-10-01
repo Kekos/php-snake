@@ -57,6 +57,16 @@ class EntityMetaTest extends TestCase
         $meta->getPrimaryKeyColumns();
     }
 
+    public function testGetDefaultColumns(): void
+    {
+        $this->assertEquals([
+            'id',
+            'name',
+            'bar',
+            'created_time',
+        ], $this->meta->getDefaultColumns());
+    }
+
     public function testGetColumnsWithValues(): void
     {
         $entity = new FooEntity();
