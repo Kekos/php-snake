@@ -8,6 +8,7 @@
 namespace Kekos\PhpSnake;
 
 use PDO;
+use PDOStatement;
 use Kekos\PhpSnake\Exception\SnakeException;
 
 final class Connection
@@ -33,6 +34,30 @@ final class Connection
         ];
 
         $this->pdo = new PDO($dsn, $username, $password, $options);
+    }
+
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
+    }
+
+    public function prepare(string $statement, array $driver_options = []): PDOStatement
+    {
+        return $this->pdo->prepare($statement, $driver_options);
+    }
+
+    /**
+     * @param string $statement
+     * @return bool|PDOStatement
+     */
+    public function query(string $statement)
+    {
+        return $this->pdo->query($statement);
+    }
+
+    public function exec(string $statement): int
+    {
+        return $this->pdo->exec($statement);
     }
 
     private static function hasDsnCharsetProperty(string $dsn): bool
