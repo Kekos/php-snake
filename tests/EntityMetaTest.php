@@ -26,7 +26,7 @@ class EntityMetaTest extends TestCase
 
     public function testGetPrimaryKeyColumnsDefaultId(): void
     {
-        $this->assertEquals(['id'], $this->meta->getPrimaryKeyColumns());
+        $this->assertEquals(['id' => true], $this->meta->getPrimaryKeyColumns());
     }
 
     public function testGetPrimaryKeyColumnsWhenDefined(): void
@@ -34,8 +34,8 @@ class EntityMetaTest extends TestCase
         $meta = new EntityMeta(BarEntity::class);
 
         $this->assertEquals([
-            'bar_id',
-            'baz_id',
+            'bar_id' => false,
+            'baz_id' => false,
         ], $meta->getPrimaryKeyColumns());
     }
 

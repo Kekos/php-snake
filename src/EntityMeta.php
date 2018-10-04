@@ -60,7 +60,7 @@ final class EntityMeta
             return $primary_definition;
         }
 
-        return ['id'];
+        return ['id' => true];
     }
 
     public function getDefaultColumns(): array
