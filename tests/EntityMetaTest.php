@@ -57,6 +57,17 @@ class EntityMetaTest extends TestCase
         $meta->getPrimaryKeyColumns();
     }
 
+    public function testHasAutoIncrementPrimary(): void
+    {
+        $this->assertEquals(true, $this->meta->hasAutoIncrementPrimary());
+    }
+
+    public function testHasNotAutoIncrementPrimary(): void
+    {
+        $meta = new EntityMeta(BarEntity::class);
+        $this->assertEquals(false, $meta->hasAutoIncrementPrimary());
+    }
+
     public function testGetDefaultColumns(): void
     {
         $this->assertEquals([

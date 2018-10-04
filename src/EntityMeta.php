@@ -63,6 +63,17 @@ final class EntityMeta
         return ['id' => true];
     }
 
+    public function hasAutoIncrementPrimary(): bool
+    {
+        foreach ($this->getPrimaryKeyColumns() as $column => $is_auto_increment) {
+            if ($is_auto_increment) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getDefaultColumns(): array
     {
         $properties = [];
