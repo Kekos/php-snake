@@ -11,8 +11,8 @@ class BarEntity
     private $info;
 
     private static $primary_definition = [
-        'bar_id',
-        'baz_id',
+        'bar_id' => false,
+        'baz_id' => false,
     ];
 
     /**
@@ -25,9 +25,9 @@ class BarEntity
 
     /**
      * @param int $bar_id
-     * @return FooEntity
+     * @return BarEntity
      */
-    public function setBarId(int $bar_id): FooEntity
+    public function setBarId(int $bar_id): BarEntity
     {
         $this->bar_id = $bar_id;
         return $this;
@@ -43,9 +43,9 @@ class BarEntity
 
     /**
      * @param int $baz_id
-     * @return FooEntity
+     * @return BarEntity
      */
-    public function setBazId(int $baz_id): FooEntity
+    public function setBazId(int $baz_id): BarEntity
     {
         $this->baz_id = $baz_id;
         return $this;
@@ -61,9 +61,9 @@ class BarEntity
 
     /**
      * @param string $info
-     * @return FooEntity
+     * @return BarEntity
      */
-    public function setInfo(string $info): FooEntity
+    public function setInfo(string $info): BarEntity
     {
         $this->info = $info;
         return $this;
