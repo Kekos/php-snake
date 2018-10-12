@@ -9,6 +9,7 @@ namespace Kekos\PhpSnake;
 
 use QueryBuilder\QueryBuilder;
 use QueryBuilder\QueryBuilders\Raw;
+use QueryBuilder\QueryBuilders\Select;
 
 final class EntityPersister
 {
@@ -76,6 +77,22 @@ final class EntityPersister
         $stmt->closeCursor();
     }
 
+    public function load(array $criteria): ?object
+    {
+        $qb = $this->getSelectQueryBuilder();
+
+        foreach ($criteria as $column => $value) {
+            $qb->where($column, '=', $value);
+        }
+
+        $sql = $qb->toSql();
+
+        $stmt = $this->conn->prepare((string) $sql);
+        $stmt->execute($sql->getParams());
+
+        return $stmt->fetchObject($this->meta->getClassName());
+    }
+
     public function getInsertSql(): string
     {
         $table_name = $this->meta->getTableName();
@@ -141,5 +158,12 @@ final class EntityPersister
         }
 
         return $qb->toSql();
+    }
+
+    public function getSelectQueryBuilder(): Select
+    {
+        $table_name = $this->meta->getTableName();
+
+        return QueryBuilder::select($table_name);
     }
 }

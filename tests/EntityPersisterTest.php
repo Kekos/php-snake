@@ -11,6 +11,7 @@ use Kekos\PhpSnake\Tests\Fixtures\FooEntity;
 use PHPUnit\Framework\TestCase;
 use QueryBuilder\MySqlAdapter;
 use QueryBuilder\QueryBuilder;
+use QueryBuilder\QueryBuilders\Select;
 
 class EntityPersisterTest extends TestCase
 {
@@ -44,6 +45,21 @@ class EntityPersisterTest extends TestCase
     protected function tearDown(): void
     {
         $this->conn->exec("DROP TABLE `foo_entity`");
+    }
+
+    private function createDatabaseFixtures(): void
+    {
+        $stmt = $this->conn->prepare("INSERT INTO `foo_entity` (`name`, `bar`, `created_time`) VALUES (?, ?, NOW())");
+
+        $fixtures = [
+            ['foo1', null],
+            ['foo2', 'bar2'],
+            ['foo3', 'bar3'],
+        ];
+
+        foreach ($fixtures as $fixture) {
+            $stmt->execute($fixture);
+        }
     }
 
     private function getTableCount(): int
@@ -136,6 +152,30 @@ class EntityPersisterTest extends TestCase
         $this->assertEquals(0, $this->getTableCount());
     }
 
+    public function testLoad(): void
+    {
+        $this->createDatabaseFixtures();
+
+        /** @var FooEntity $result */
+        $result = $this->persister->load(['id' => 1]);
+
+        $this->assertInstanceOf(FooEntity::class, $result);
+
+        $this->assertEquals(1, $result->getId());
+        $this->assertEquals('foo1', $result->getName());
+        $this->assertEquals(null, $result->getBar());
+        $this->assertStringMatchesFormat('%d-%d-%d %d:%d:%d', $result->getCreatedTime());
+    }
+
+    public function testLoadNotFound(): void
+    {
+        $this->createDatabaseFixtures();
+
+        $result = $this->persister->load(['id' => 42]);
+
+        $this->assertNull($result);
+    }
+
     private function setEntityWithId(object $entity, int $id): void
     {
         $reflection_prop = new ReflectionProperty(FooEntity::class, 'id');
@@ -189,5 +229,17 @@ class EntityPersisterTest extends TestCase
 
         $this->assertEquals($expected_sql, (string) $sql);
         $this->assertEquals($expected_params, $sql->getParams());
+    }
+
+    public function testGetSelectQueryBuilder(): void
+    {
+        $expected_sql = "SELECT *\n\tFROM `foo_entity`\n";
+
+        $qb = $this->persister->getSelectQueryBuilder();
+        $this->assertInstanceOf(Select::class, $qb);
+
+        $sql = $qb->toSql();
+        $this->assertEquals($expected_sql, (string) $sql);
+        $this->assertEquals([], $sql->getParams());
     }
 }
