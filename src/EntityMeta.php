@@ -8,6 +8,7 @@
 namespace Kekos\PhpSnake;
 
 use ReflectionClass;
+use ReflectionException;
 use ReflectionProperty;
 use Kekos\PhpSnake\Exception\SnakeMetaException;
 
@@ -30,13 +31,12 @@ final class EntityMeta
     }
 
     /**
-     * @return string[]
+     * @return array<string,bool>
      * @throws SnakeMetaException
-     * @throws \ReflectionException
      */
     public function getPrimaryKeyColumns(): array
     {
-        if (property_exists($this->class_name, 'primary_definition')) {
+        try {
             $reflection_property = new ReflectionProperty($this->class_name, 'primary_definition');
             $reflection_property->setAccessible(true);
 
@@ -58,6 +58,7 @@ final class EntityMeta
             }
 
             return $primary_definition;
+        } catch (ReflectionException $ex) {
         }
 
         return ['id' => true];
@@ -90,6 +91,11 @@ final class EntityMeta
         return $properties;
     }
 
+    /**
+     * @param object $entity_instance
+     * @return array<string,mixed>
+     * @throws ReflectionException
+     */
     public function getColumnsWithValues(object $entity_instance): array
     {
         $properties = [];

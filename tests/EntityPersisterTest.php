@@ -3,6 +3,7 @@ namespace Kekos\PhpSnake\Tests;
 
 use PDO;
 use ReflectionProperty;
+use RuntimeException;
 use Kekos\PhpSnake\Connection;
 use Kekos\PhpSnake\EntityMeta;
 use Kekos\PhpSnake\EntityPersister;
@@ -48,6 +49,9 @@ class EntityPersisterTest extends TestCase
     private function getTableCount(): int
     {
         $stmt = $this->conn->query("SELECT COUNT(*) AS `cnt` FROM `foo_entity`");
+        if (is_bool($stmt)) {
+            throw new RuntimeException('Selecting count from foo_entity returned error');
+        }
 
         return $stmt->fetchObject()->cnt;
     }
@@ -145,7 +149,7 @@ class EntityPersisterTest extends TestCase
 
         $sql = $this->persister->getInsertSql();
 
-        $this->assertEquals($expected_sql, (string) $sql);
+        $this->assertEquals($expected_sql, $sql);
     }
 
     public function testGetUpdateSql(): void
