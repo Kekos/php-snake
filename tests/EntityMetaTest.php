@@ -19,6 +19,11 @@ class EntityMetaTest extends TestCase
         $this->meta = new EntityMeta(FooEntity::class);
     }
 
+    public function testGetClassName(): void
+    {
+        $this->assertEquals(FooEntity::class, $this->meta->getClassName());
+    }
+
     public function testGetTableName(): void
     {
         $this->assertEquals('foo_entity', $this->meta->getTableName());

@@ -25,6 +25,11 @@ final class EntityMeta
         $this->table_name = self::convertClassToTableName($class_name);
     }
 
+    public function getClassName(): string
+    {
+        return $this->class_name;
+    }
+
     public function getTableName(): string
     {
         return $this->table_name;
