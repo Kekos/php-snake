@@ -15,6 +15,12 @@ use QueryBuilder\QueryBuilders\Select;
 
 class EntityPersisterTest extends TestCase
 {
+    public const ROW_FIXTURES = [
+        ['foo1', null],
+        ['foo2', 'bar2'],
+        ['foo3', 'bar3'],
+    ];
+
     /** @var EntityPersister */
     private $persister;
     /** @var Connection */
@@ -51,13 +57,7 @@ class EntityPersisterTest extends TestCase
     {
         $stmt = $this->conn->prepare("INSERT INTO `foo_entity` (`name`, `bar`, `created_time`) VALUES (?, ?, NOW())");
 
-        $fixtures = [
-            ['foo1', null],
-            ['foo2', 'bar2'],
-            ['foo3', 'bar3'],
-        ];
-
-        foreach ($fixtures as $fixture) {
+        foreach (self::ROW_FIXTURES as $fixture) {
             $stmt->execute($fixture);
         }
     }
@@ -156,14 +156,16 @@ class EntityPersisterTest extends TestCase
     {
         $this->createDatabaseFixtures();
 
+        $load_id = 1;
         /** @var FooEntity $result */
-        $result = $this->persister->load(['id' => 1]);
+        $result = $this->persister->load(['id' => $load_id]);
 
         $this->assertInstanceOf(FooEntity::class, $result);
 
-        $this->assertEquals(1, $result->getId());
-        $this->assertEquals('foo1', $result->getName());
-        $this->assertEquals(null, $result->getBar());
+        $expected = self::ROW_FIXTURES[0];
+        $this->assertEquals($load_id, $result->getId());
+        $this->assertEquals($expected[0], $result->getName());
+        $this->assertEquals($expected[1], $result->getBar());
         $this->assertStringMatchesFormat('%d-%d-%d %d:%d:%d', $result->getCreatedTime());
     }
 
