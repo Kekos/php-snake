@@ -178,6 +178,26 @@ class EntityPersisterTest extends TestCase
         $this->assertNull($result);
     }
 
+    public function testLoadAll(): void
+    {
+        $this->createDatabaseFixtures();
+
+        /** @var FooEntity[]|array $results */
+        $results = $this->persister->loadAll(function (Select $qb): void {
+            $qb->orderby('id');
+        });
+
+        $this->assertCount(count(self::ROW_FIXTURES), $results);
+
+        foreach (self::ROW_FIXTURES as $i => $expected) {
+            $result = $results[$i];
+            $this->assertInstanceOf(FooEntity::class, $result);
+            $this->assertEquals($expected[0], $result->getName());
+            $this->assertEquals($expected[1], $result->getBar());
+            $this->assertStringMatchesFormat('%d-%d-%d %d:%d:%d', $result->getCreatedTime());
+        }
+    }
+
     private function setEntityWithId(object $entity, int $id): void
     {
         $reflection_prop = new ReflectionProperty(FooEntity::class, 'id');

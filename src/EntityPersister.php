@@ -7,6 +7,7 @@
 
 namespace Kekos\PhpSnake;
 
+use PDO;
 use QueryBuilder\QueryBuilder;
 use QueryBuilder\QueryBuilders\Raw;
 use QueryBuilder\QueryBuilders\Select;
@@ -94,6 +95,28 @@ final class EntityPersister
 
         if (!is_object($result) && $result !== null) {
             return null;
+        }
+
+        return $result;
+    }
+
+    public function loadAll(callable $builder_func = null): array
+    {
+        $qb = $this->getSelectQueryBuilder();
+
+        if (is_callable($builder_func)) {
+            $builder_func($qb);
+        }
+
+        $sql = $qb->toSql();
+
+        $stmt = $this->conn->prepare((string) $sql);
+        $stmt->execute($sql->getParams());
+
+        $result = $stmt->fetchAll(PDO::FETCH_CLASS, $this->meta->getClassName());
+
+        if (!is_array($result)) {
+            return [];
         }
 
         return $result;
