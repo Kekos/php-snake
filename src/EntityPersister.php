@@ -90,7 +90,13 @@ final class EntityPersister
         $stmt = $this->conn->prepare((string) $sql);
         $stmt->execute($sql->getParams());
 
-        return $stmt->fetchObject($this->meta->getClassName());
+        $result = $stmt->fetchObject($this->meta->getClassName());
+
+        if (!is_object($result) && $result !== null) {
+            return null;
+        }
+
+        return $result;
     }
 
     public function getInsertSql(): string
