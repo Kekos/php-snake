@@ -121,6 +121,26 @@ final class EntityMeta
         return $properties;
     }
 
+    /**
+     * @param object $entity_instance
+     * @return array<string,mixed>
+     * @throws ReflectionException
+     * @throws SnakeMetaException
+     */
+    public function getPrimaryColumnsWithValues(object $entity_instance): array
+    {
+        $values = array_intersect_key(
+            $this->getColumnsWithValues($entity_instance),
+            $this->getPrimaryKeyColumns()
+        );
+
+        $values = array_filter($values, function ($value): bool {
+            return ($value !== null);
+        });
+
+        return $values;
+    }
+
     private static function convertClassToTableName(string $class_name): string
     {
         $ns_pos = strrpos($class_name, '\\');

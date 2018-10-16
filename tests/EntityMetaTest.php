@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace Kekos\PhpSnake\Tests;
 
+use ReflectionProperty;
 use Kekos\PhpSnake\EntityMeta;
 use Kekos\PhpSnake\Exception\SnakeMetaException;
 use Kekos\PhpSnake\Tests\Fixtures\BarEntity;
@@ -93,5 +94,26 @@ class EntityMetaTest extends TestCase
             'bar' => null,
             'created_time' => null,
         ], $this->meta->getColumnsWithValues($entity));
+    }
+
+    public function testPrimaryColumnsWithValues(): void
+    {
+        $entity = new FooEntity();
+        $id = 42;
+
+        $reflection_prop = new ReflectionProperty(FooEntity::class, 'id');
+        $reflection_prop->setAccessible(true);
+        $reflection_prop->setValue($entity, $id);
+
+        $this->assertEquals([
+            'id' => $id,
+        ], $this->meta->getPrimaryColumnsWithValues($entity));
+    }
+
+    public function testPrimaryColumnsWithValuesEmpty(): void
+    {
+        $entity = new FooEntity();
+
+        $this->assertEquals([], $this->meta->getPrimaryColumnsWithValues($entity));
     }
 }
