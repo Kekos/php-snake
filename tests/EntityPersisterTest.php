@@ -152,6 +152,20 @@ class EntityPersisterTest extends TestCase
         $this->assertEquals(0, $this->getTableCount());
     }
 
+    public function testExistsPositive(): void
+    {
+        $this->createDatabaseFixtures();
+
+        $this->assertTrue($this->persister->exists(['id' => 1]));
+    }
+
+    public function testExistsNegative(): void
+    {
+        $this->createDatabaseFixtures();
+
+        $this->assertFalse($this->persister->exists(['id' => 4]));
+    }
+
     public function testLoad(): void
     {
         $this->createDatabaseFixtures();

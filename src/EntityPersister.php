@@ -78,6 +78,23 @@ final class EntityPersister
         $stmt->closeCursor();
     }
 
+    public function exists(array $criteria): bool
+    {
+        $qb = $this->getSelectQueryBuilder();
+        $qb->columns(new Raw('1'));
+
+        foreach ($criteria as $column => $value) {
+            $qb->where($column, '=', $value);
+        }
+
+        $sql = $qb->toSql();
+
+        $stmt = $this->conn->prepare((string) $sql);
+        $stmt->execute($sql->getParams());
+
+        return (bool) $stmt->fetchColumn();
+    }
+
     public function load(array $criteria): ?object
     {
         $qb = $this->getSelectQueryBuilder();
