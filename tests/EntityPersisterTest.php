@@ -94,21 +94,21 @@ class EntityPersisterTest extends ConnectionTestCase
 
     public function testExistsPositive(): void
     {
-        $this->createDatabaseFixtures();
+        $this->createDatabaseFixturesFoo();
 
         $this->assertTrue($this->persister->exists(['id' => 1]));
     }
 
     public function testExistsNegative(): void
     {
-        $this->createDatabaseFixtures();
+        $this->createDatabaseFixturesFoo();
 
         $this->assertFalse($this->persister->exists(['id' => 4]));
     }
 
     public function testLoad(): void
     {
-        $this->createDatabaseFixtures();
+        $this->createDatabaseFixturesFoo();
 
         $load_id = 1;
         /** @var FooEntity $result */
@@ -116,7 +116,7 @@ class EntityPersisterTest extends ConnectionTestCase
 
         $this->assertInstanceOf(FooEntity::class, $result);
 
-        $expected = self::ROW_FIXTURES[0];
+        $expected = self::ROW_FIXTURES_FOO[0];
         $this->assertEquals($load_id, $result->getId());
         $this->assertEquals($expected[0], $result->getName());
         $this->assertEquals($expected[1], $result->getBar());
@@ -125,7 +125,7 @@ class EntityPersisterTest extends ConnectionTestCase
 
     public function testLoadNotFound(): void
     {
-        $this->createDatabaseFixtures();
+        $this->createDatabaseFixturesFoo();
 
         $result = $this->persister->load(['id' => 42]);
 
@@ -134,16 +134,16 @@ class EntityPersisterTest extends ConnectionTestCase
 
     public function testLoadAll(): void
     {
-        $this->createDatabaseFixtures();
+        $this->createDatabaseFixturesFoo();
 
         /** @var FooEntity[]|array $results */
         $results = $this->persister->loadAll(function (Select $qb): void {
             $qb->orderby('id');
         });
 
-        $this->assertCount(count(self::ROW_FIXTURES), $results);
+        $this->assertCount(count(self::ROW_FIXTURES_FOO), $results);
 
-        foreach (self::ROW_FIXTURES as $i => $expected) {
+        foreach (self::ROW_FIXTURES_FOO as $i => $expected) {
             $result = $results[$i];
             $this->assertInstanceOf(FooEntity::class, $result);
             $this->assertEquals($expected[0], $result->getName());

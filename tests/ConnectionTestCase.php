@@ -15,10 +15,15 @@ use QueryBuilder\QueryBuilders\Select;
 
 abstract class ConnectionTestCase extends TestCase
 {
-    public const ROW_FIXTURES = [
+    public const ROW_FIXTURES_FOO = [
         ['foo1', null],
         ['foo2', 'bar2'],
         ['foo3', 'bar3'],
+    ];
+    public const ROW_FIXTURES_BAR = [
+        [13, 2, 'info13_2'],
+        [14, 9, 'info14_9'],
+        [42, 34, 'info42_34'],
     ];
 
     /** @var Connection */
@@ -55,11 +60,20 @@ abstract class ConnectionTestCase extends TestCase
         $this->conn->exec("DROP TABLE `bar_entity`");
     }
 
-    protected function createDatabaseFixtures(): void
+    protected function createDatabaseFixturesFoo(): void
     {
         $stmt = $this->conn->prepare("INSERT INTO `foo_entity` (`name`, `bar`, `created_time`) VALUES (?, ?, NOW())");
 
-        foreach (self::ROW_FIXTURES as $fixture) {
+        foreach (self::ROW_FIXTURES_FOO as $fixture) {
+            $stmt->execute($fixture);
+        }
+    }
+
+    protected function createDatabaseFixturesBar(): void
+    {
+        $stmt = $this->conn->prepare("INSERT INTO `bar_entity` (`bar_id`, `baz_id`, `info`) VALUES (?, ?, ?)");
+
+        foreach (self::ROW_FIXTURES_BAR as $fixture) {
             $stmt->execute($fixture);
         }
     }
