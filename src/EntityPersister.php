@@ -56,6 +56,7 @@ final class EntityPersister
         }
 
         $stmt->closeCursor();
+        $this->queued_inserts = [];
 
         return $genereated_ids;
     }
