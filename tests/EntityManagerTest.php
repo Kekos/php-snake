@@ -78,6 +78,27 @@ class EntityManagerTest extends ConnectionTestCase
         $this->assertSame($result, $third_result);
     }
 
+    public function testPersistNew(): void
+    {
+        $name = 'foo test persist name';
+
+        $entity = new FooEntity();
+        $entity->setName($name);
+        $entity->setCreatedTime(date('Y-m-d H:i:s'));
+
+        $this->manager->persist($entity);
+        $this->manager->flush();
+
+        /** @var FooEntity|null $result */
+        $result = $this->manager->find(FooEntity::class, 1);
+
+        if ($result === null) {
+            throw new RuntimeException('Entity not found');
+        }
+
+        $this->assertEquals($name, $result->getName());
+    }
+
     public function testGetEntityStateNew(): void
     {
         $entity = new FooEntity();

@@ -7,6 +7,7 @@
 
 namespace Kekos\PhpSnake;
 
+use Throwable;
 use Kekos\PhpSnake\Exception\SnakeException;
 
 final class EntityManager
@@ -97,13 +98,15 @@ final class EntityManager
     public function persist(object $entity): void
     {
         $entity_state = $this->getEntityState($entity);
+        $oid = spl_object_id($entity);
 
         switch ($entity_state) {
             case self::STATE_MANAGED:
                 break;
 
             case self::STATE_NEW:
-                // persist as new
+                $this->entity_states[$oid] = self::STATE_MANAGED;
+                $this->scheduleForInsert($entity);
                 break;
 
             case self::STATE_REMOVED:
@@ -124,6 +127,72 @@ final class EntityManager
                     get_class($entity)
                 ));
         }
+    }
+
+    public function flush(): void
+    {
+        $pdo = $this->connection->getPdo();
+        $pdo->beginTransaction();
+
+        try {
+            foreach ($this->getClassNameForCollection($this->entity_inserts) as $class_name) {
+                $this->executeInserts($class_name);
+            }
+
+            $pdo->commit();
+        } catch (Throwable $ex) {
+            $pdo->rollBack();
+
+            throw $ex;
+        }
+    }
+
+    private function executeInserts(string $class_name): void
+    {
+        $persister = $this->getEntityPersister($class_name);
+        $meta = $this->getEntityMeta($class_name);
+        $entities = [];
+
+        foreach ($this->entity_inserts as $entity) {
+            if (get_class($entity) !== $class_name) {
+                continue;
+            }
+
+            $persister->addInsert($entity);
+            $entities[spl_object_id($entity)] = $entity;
+        }
+
+        $generated_ids = $persister->executeInserts();
+        /** @var string $primary_key */
+        $primary_key = key($meta->getPrimaryKeyColumns());
+
+        $meta->setColumnWithValue($primary_key, $entities, $generated_ids);
+    }
+
+    private function getClassNameForCollection(array &$collection): array
+    {
+        $class_names = [];
+
+        foreach ($collection as $item) {
+            $class_names[get_class($item)] = true;
+        }
+
+        return array_keys($class_names);
+    }
+
+    private function scheduleForInsert(object $entity): void
+    {
+        $oid = spl_object_id($entity);
+
+        if (isset($this->entity_updates[$oid])) {
+            throw new SnakeException('Entity is already scheduled for update, cannot schedule for insert');
+        }
+
+        if (isset($this->entity_deletions[$oid])) {
+            throw new SnakeException('Entity is already scheduled for delete, cannot schedule for insert');
+        }
+
+        $this->entity_inserts[$oid] = $entity;
     }
 
     public function getEntityState(object $entity): ?int
