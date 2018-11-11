@@ -84,6 +84,24 @@ class EntityMetaTest extends TestCase
         ], $this->meta->getDefaultColumns());
     }
 
+    public function testGetColumnReflections(): void
+    {
+        $reflections = $this->meta->getColumnReflections();
+        $expected = [
+            'id',
+            'name',
+            'bar',
+            'created_time',
+        ];
+
+        $this->assertCount(4, $reflections);
+
+        foreach ($reflections as $i => $reflection) {
+            $this->assertInstanceOf(ReflectionProperty::class, $reflection);
+            $this->assertEquals($expected[$i], $reflection->getName());
+        }
+    }
+
     public function testGetColumnsWithValues(): void
     {
         $entity = new FooEntity();

@@ -80,16 +80,24 @@ final class EntityMeta
         return false;
     }
 
+    /**
+     * @return ReflectionProperty[]
+     * @throws ReflectionException
+     */
+    public function getColumnReflections(): array
+    {
+        $reflection = new ReflectionClass($this->class_name);
+
+        return array_filter($reflection->getProperties(), function (ReflectionProperty $property): bool {
+            return ($property->isDefault() && !$property->isStatic());
+        });
+    }
+
     public function getDefaultColumns(): array
     {
         $properties = [];
 
-        $reflection = new ReflectionClass($this->class_name);
-        foreach ($reflection->getProperties() as $property) {
-            if (!$property->isDefault() || $property->isStatic()) {
-                continue;
-            }
-
+        foreach ($this->getColumnReflections() as $property) {
             $properties[] = $property->getName();
         }
 
@@ -105,12 +113,7 @@ final class EntityMeta
     {
         $properties = [];
 
-        $reflection = new ReflectionClass($this->class_name);
-        foreach ($reflection->getProperties() as $property) {
-            if (!$property->isDefault() || $property->isStatic()) {
-                continue;
-            }
-
+        foreach ($this->getColumnReflections() as $property) {
             $property->setAccessible(true);
             $name = $property->getName();
             $value = $property->getValue($entity_instance);
