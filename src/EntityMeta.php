@@ -144,6 +144,32 @@ final class EntityMeta
         return $values;
     }
 
+    /**
+     * @param string $column
+     * @param object[] $entities
+     * @param array $values
+     * @throws ReflectionException
+     * @throws SnakeMetaException
+     */
+    public function setColumnWithValue(string $column, array $entities, array $values): void
+    {
+        $property = new ReflectionProperty($this->class_name, $column);
+        $property->setAccessible(true);
+
+        foreach ($entities as $index => $entity) {
+            if (get_class($entity) !== $this->class_name) {
+                throw new SnakeMetaException(sprintf(
+                    'Given entity "%s" is not instance of "%s" when setting column "%s"',
+                    get_class($entity),
+                    $this->class_name,
+                    $column
+                ));
+            }
+
+            $property->setValue($entity, $values[$index]);
+        }
+    }
+
     private static function convertClassToTableName(string $class_name): string
     {
         $ns_pos = strrpos($class_name, '\\');

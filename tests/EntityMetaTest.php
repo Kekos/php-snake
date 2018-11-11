@@ -134,4 +134,21 @@ class EntityMetaTest extends TestCase
 
         $this->assertEquals([], $this->meta->getPrimaryColumnsWithValues($entity));
     }
+
+    public function testSetColumnWithValue(): void
+    {
+        /** @var FooEntity[] $entities */
+        $entities = [new FooEntity()];
+        $values = range(10, 14);
+
+        for ($i = 0; $i < 4; $i++) {
+            $entities[] = clone $entities[0];
+        }
+
+        $this->meta->setColumnWithValue('id', $entities, $values);
+
+        foreach ($entities as $index => $entity) {
+            $this->assertEquals($values[$index], $entity->getId());
+        }
+    }
 }
