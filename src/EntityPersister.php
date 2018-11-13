@@ -51,7 +51,12 @@ final class EntityPersister
             $stmt->execute($values);
 
             if ($has_auto_increment) {
-                $genereated_ids[spl_object_id($entity)] = $this->conn->getPdo()->lastInsertId();
+                $id = $this->conn->getPdo()->lastInsertId();
+                if (is_numeric($id)) {
+                    $id = (int) $id;
+                }
+
+                $genereated_ids[spl_object_id($entity)] = $id;
             }
         }
 

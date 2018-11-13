@@ -90,7 +90,7 @@ class EntityManagerTest extends ConnectionTestCase
         $this->manager->flush();
 
         /** @var FooEntity|null $result */
-        $result = $this->manager->find(FooEntity::class, 1);
+        $result = $this->manager->find(FooEntity::class, $entity->getId());
 
         if ($result === null) {
             throw new RuntimeException('Entity not found');

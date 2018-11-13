@@ -50,6 +50,7 @@ class EntityPersisterTest extends ConnectionTestCase
         $this->assertEquals([
             $oid => 1,
         ], $generated_ids);
+        $this->assertInternalType('int', current($generated_ids));
 
         $this->assertAttributeEquals([], 'queued_inserts', $this->persister);
     }
