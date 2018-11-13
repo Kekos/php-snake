@@ -145,6 +145,10 @@ final class EntityManager
 
             throw $ex;
         }
+
+        $this->entity_inserts = [];
+        $this->entity_updates = [];
+        $this->entity_deletions = [];
     }
 
     private function executeInserts(string $class_name): void

@@ -89,6 +89,8 @@ class EntityManagerTest extends ConnectionTestCase
         $this->manager->persist($entity);
         $this->manager->flush();
 
+        $this->assertAttributeEmpty('entity_inserts', $this->manager);
+
         /** @var FooEntity|null $result */
         $result = $this->manager->find(FooEntity::class, $entity->getId());
 
