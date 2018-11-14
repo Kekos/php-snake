@@ -174,7 +174,15 @@ final class EntityMeta
     {
         $ns_pos = strrpos($class_name, '\\');
         $table_name = substr($class_name, $ns_pos + 1);
+        $snake_replace = preg_replace('/[A-Z]/', '_\\0', lcfirst($table_name));
 
-        return strtolower(preg_replace('/[A-Z]/', '_\\0', lcfirst($table_name)));
+        if ($snake_replace === null) {
+            throw new SnakeMetaException(sprintf(
+                'Regex error in EntityMeta::convertClassToTableName for class name "%s"',
+                $class_name
+            ));
+        }
+
+        return strtolower($snake_replace);
     }
 }
