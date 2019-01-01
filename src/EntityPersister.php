@@ -66,9 +66,9 @@ final class EntityPersister
         return $genereated_ids;
     }
 
-    public function update(object $entity): void
+    public function update(object $entity, array $change_set = null): void
     {
-        $update_sql = $this->getUpdateSql($entity);
+        $update_sql = $this->getUpdateSql($entity, $change_set);
 
         $stmt = $this->conn->prepare((string) $update_sql);
         $stmt->execute($update_sql->getParams());
@@ -165,7 +165,7 @@ final class EntityPersister
         return (string) $qb->toSql();
     }
 
-    public function getUpdateSql(object $entity): Raw
+    public function getUpdateSql(object $entity, array $change_set = null): Raw
     {
         $table_name = $this->meta->getTableName();
         $qb = QueryBuilder::update($table_name);
@@ -173,11 +173,23 @@ final class EntityPersister
         $values = [];
         $primary_values = [];
 
-        foreach ($this->meta->getColumnsWithValues($entity) as $column => $value) {
-            if (isset($primary_columns[$column])) {
-                $primary_values[$column] = $value;
-            } else {
-                $values[$column] = $value;
+        if (empty($change_set)) {
+            foreach ($this->meta->getColumnsWithValues($entity) as $column => $value) {
+                if (isset($primary_columns[$column])) {
+                    $primary_values[$column] = $value;
+                } else {
+                    $values[$column] = $value;
+                }
+            }
+        } else {
+            $values = $change_set;
+            $primary_values = $this->meta->getPrimaryColumnsWithValues($entity);
+
+            /** @var string $column */
+            foreach ($values as $column => $value) {
+                if (isset($primary_values[$column])) {
+                    $primary_values[$column] = $value;
+                }
             }
         }
 

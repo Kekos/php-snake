@@ -81,6 +81,29 @@ class EntityPersisterTest extends ConnectionTestCase
         $this->assertEquals($expected, $result);
     }
 
+    public function testUpdateSpecific(): void
+    {
+        $entity = $this->getFilledEntity();
+
+        $this->persister->addInsert($entity);
+        $generated_ids = $this->persister->executeInserts();
+
+        $this->setEntityWithId($entity, intval(current($generated_ids)));
+
+        $change_set = [
+            'name' => 'edit name',
+        ];
+
+        $this->persister->update($entity, $change_set);
+
+        $stmt = $this->conn->prepare("SELECT `name` FROM `foo_entity` WHERE `id` = ?");
+        $stmt->execute([$entity->getId()]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertEquals($change_set['name'], $result['name']);
+    }
+
     public function testDelete(): void
     {
         $entity = $this->getFilledEntity();
@@ -181,6 +204,29 @@ class EntityPersisterTest extends ConnectionTestCase
         ];
 
         $sql = $this->persister->getUpdateSql($entity);
+
+        $this->assertEquals($expected_sql, (string) $sql);
+        $this->assertEquals($expected_params, $sql->getParams());
+    }
+
+    public function testGetUpdateSqlSpecific(): void
+    {
+        $entity = $this->getFilledEntity();
+        $this->setEntityWithId($entity, 42);
+        $expected_name = 'changed name';
+
+        $expected_sql = "UPDATE `foo_entity`\n\t"
+            . "SET\n\t\t`name` = ?\n\t"
+            . "WHERE `id` = ?";
+
+        $expected_params = [
+            $expected_name,
+            $entity->getId(),
+        ];
+
+        $sql = $this->persister->getUpdateSql($entity, [
+            'name' => $expected_name,
+        ]);
 
         $this->assertEquals($expected_sql, (string) $sql);
         $this->assertEquals($expected_params, $sql->getParams());
